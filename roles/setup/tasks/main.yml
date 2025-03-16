@@ -4,3 +4,6 @@
 
 - name: Configure Server Monitoring
   import_tasks: install_newrelic.yml
+
+- name: Update machine
+  import_tasks: update_machine.yml
