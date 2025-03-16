@@ -1,0 +1,45 @@
+---
+- name: Add New Relic GPG Key
+  ansible.builtin.apt_key:
+    url: https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg
+    state: present
+
+- name: Add New Relic Repository (Ubuntu/Debian)
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/newrelic.gpg] https://download.newrelic.com/infrastructure_agent/linux/apt focal main"
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Add New Relic Repository (RHEL/CentOS)
+  ansible.builtin.yum_repository:
+    name: newrelic-infra
+    description: New Relic Infrastructure Agent
+    baseurl: https://download.newrelic.com/infrastructure_agent/linux/yum/el/$releasever/$basearch
+    gpgkey: https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg
+    gpgcheck: yes
+    enabled: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Install New Relic Infrastructure Agent
+  ansible.builtin.package:
+    name: newrelic-infra
+    state: present
+
+- name: Configure New Relic License Key
+  ansible.builtin.copy:
+    dest: /etc/newrelic-infra.yml
+    content: |
+      license_key: {{ newrelic_license_key }}
+      custom_attribute:
+        network: {{ network }}
+        environment: {{ environment }}
+      log_file: /var/log/newrelic-infra.log
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Start and Enable New Relic Service
+  ansible.builtin.service:
+    name: newrelic-infra
+    state: started
+    enabled: yes
