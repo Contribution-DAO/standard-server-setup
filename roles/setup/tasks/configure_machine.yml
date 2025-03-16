@@ -2,3 +2,10 @@
 - name: change hostname
   hostname:
     name: "{{ hostname }}"
+
+- name: set ssh session timeout
+  ansible.builtin.lineinfile:
+    path: /etc/profile
+    line: "TMOUT=600"
+    create: yes
+    state: present
