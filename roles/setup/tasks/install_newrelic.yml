@@ -1,24 +1,27 @@
 ---
-- name: Add New Relic GPG Key
-  ansible.builtin.apt_key:
-    url: https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg
+- name: Install required dependencies
+  ansible.builtin.apt:
+    name:
+      - gnupg
+      - curl
     state: present
+    update_cache: yes
 
-- name: Add New Relic Repository (Ubuntu/Debian)
+- name: Download and add New Relic GPG Key
+  ansible.builtin.shell: |
+    curl -fsSL https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg | gpg --dearmor -o /usr/share/keyrings/newrelic-infra.gpg
+  args:
+    creates: /usr/share/keyrings/newrelic-infra.gpg
+
+- name: Add New Relic APT Repository
   ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/newrelic.gpg] https://download.newrelic.com/infrastructure_agent/linux/apt focal main"
+    repo: "deb [signed-by=/usr/share/keyrings/newrelic-infra.gpg] https://download.newrelic.com/infrastructure_agent/linux/apt buster main"
     state: present
-  when: ansible_os_family == "Debian"
+    filename: newrelic-infra
 
-- name: Add New Relic Repository (RHEL/CentOS)
-  ansible.builtin.yum_repository:
-    name: newrelic-infra
-    description: New Relic Infrastructure Agent
-    baseurl: https://download.newrelic.com/infrastructure_agent/linux/yum/el/$releasever/$basearch
-    gpgkey: https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg
-    gpgcheck: yes
-    enabled: yes
-  when: ansible_os_family == "RedHat"
+- name: Update APT Cache
+  ansible.builtin.apt:
+    update_cache: yes
 
 - name: Install New Relic Infrastructure Agent
   ansible.builtin.package:
