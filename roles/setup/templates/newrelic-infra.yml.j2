@@ -1,0 +1,7 @@
+license_key: {{ newrelic_license_key }}
+custom_attribute:
+{% if network is defined and network | length > 0 %}
+  network: {{ network }}
+{% endif %}
+  environment: {{ environment }}
+log_file: /var/log/newrelic-infra.log

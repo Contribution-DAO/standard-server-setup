@@ -29,14 +29,9 @@
     state: present
 
 - name: Configure New Relic License Key
-  ansible.builtin.copy:
+  ansible.builtin.template:
+    src: newrelic-infra.yml.j2
     dest: /etc/newrelic-infra.yml
-    content: |
-      license_key: {{ newrelic_license_key }}
-      custom_attribute:
-        network: {{ network }}
-        environment: {{ environment }}
-      log_file: /var/log/newrelic-infra.log
     owner: root
     group: root
     mode: '0644'
