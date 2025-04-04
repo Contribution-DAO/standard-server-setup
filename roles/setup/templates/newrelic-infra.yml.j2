@@ -3,5 +3,5 @@ custom_attribute:
 {% if network is defined and network | length > 0 %}
   network: {{ network }}
 {% endif %}
-  environment: {{ environment }}
+  environment: {{ application_environment }}
 log_file: /var/log/newrelic-infra.log
